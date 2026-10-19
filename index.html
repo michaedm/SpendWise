@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b2a4a" />
+    <meta
+      name="description"
+      content="SpendWise helps you track monthly income, expenses, and budgets using data stored only on this device."
+    />
+    <title>SpendWise — Monthly Expense Tracker</title>
+    <link rel="icon" href="assets/spendwise-logo.png.png" type="image/png" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand">
+          <h1>
+            <img
+              class="brand-logo"
+              src="assets/spendwise-logo.png.png"
+              alt="SpendWise"
+              width="260"
+              height="56"
+            />
+          </h1>
+          <p class="tagline">Personal monthly budget tracker</p>
+        </div>
+
+        <div class="header-controls">
+          <div class="period-picker">
+            <label for="period-select">Month and year</label>
+            <input id="period-select" type="month" />
+          </div>
+          <button type="button" id="reset-demo-btn" class="btn btn-ghost">
+            Reset demo data
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="app-main">
+      <p class="data-note">
+        Totals and charts use amounts you enter or fictional demo transactions
+        stored in this browser. SpendWise does not connect to bank accounts.
+      </p>
+
+      <section class="summary-grid" aria-label="Monthly totals">
+        <article class="summary-card">
+          <p class="summary-label">Total income</p>
+          <p class="summary-value income" id="total-income">$0.00</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Total expenses</p>
+          <p class="summary-value expense" id="total-expenses">$0.00</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Remaining balance</p>
+          <p class="summary-value" id="remaining-balance">$0.00</p>
+        </article>
+        <article class="summary-card">
+          <p class="summary-label">Monthly budget</p>
+          <p class="summary-value" id="monthly-budget">Not set</p>
+        </article>
+      </section>
+
+      <section class="card budget-card" aria-labelledby="budget-heading">
+        <div class="card-header">
+          <h2 id="budget-heading">Monthly spending budget</h2>
+          <p class="hint">The budget applies only to the month selected above.</p>
+        </div>
+        <form id="budget-form" class="budget-form">
+          <div class="field">
+            <label for="budget-amount">Budget amount for selected month (USD)</label>
+            <input
+              id="budget-amount"
+              name="budgetAmount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              inputmode="decimal"
+              required
+              placeholder="1500.00"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Save budget</button>
+        </form>
+        <p class="form-message" id="budget-message" role="status" aria-live="polite"></p>
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="budget-used-label">$0.00 spent — set a budget to track progress</span>
+            <span id="budget-percent">—</span>
+          </div>
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            aria-valuetext="No budget set"
+            aria-labelledby="budget-heading"
+            id="budget-progressbar"
+          >
+            <div class="progress-fill" id="budget-progress-fill"></div>
+          </div>
+          <p class="budget-warning" id="budget-warning" role="alert" hidden></p>
+        </div>
+      </section>
+
+      <div class="layout-grid">
+        <section class="card" aria-labelledby="transaction-form-heading">
+          <div class="card-header">
+            <h2 id="transaction-form-heading">Add transaction</h2>
+            <p id="form-mode-hint" class="hint">Enter a new income or expense.</p>
+          </div>
+          <form id="transaction-form" novalidate autocomplete="off">
+            <input type="hidden" id="transaction-id" />
+            <fieldset class="type-toggle">
+              <legend>Transaction type</legend>
+              <label class="choice">
+                <input type="radio" name="type" value="income" checked />
+                Income
+              </label>
+              <label class="choice">
+                <input type="radio" name="type" value="expense" />
+                Expense
+              </label>
+            </fieldset>
+            <div class="field">
+              <label for="amount">Amount (USD)</label>
+              <input
+                id="amount"
+                name="amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                inputmode="decimal"
+                required
+                placeholder="0.00"
+              />
+            </div>
+            <div class="field">
+              <label for="category">Category</label>
+              <select id="category" name="category" required></select>
+            </div>
+            <div class="field">
+              <label for="date">Date</label>
+              <input id="date" name="date" type="date" required />
+            </div>
+            <div class="field">
+              <label for="description">Description</label>
+              <input
+                id="description"
+                name="description"
+                type="text"
+                maxlength="80"
+                required
+                placeholder="e.g. Grocery run, paycheck"
+              />
+            </div>
+            <p class="form-error" id="form-error" role="alert"></p>
+            <p class="form-message" id="form-status" role="status" aria-live="polite"></p>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="save-transaction-btn">
+                Add transaction
+              </button>
+              <button type="button" class="btn btn-ghost" id="cancel-edit-btn" hidden>
+                Cancel edit
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card" aria-labelledby="category-heading">
+          <div class="card-header">
+            <h2 id="category-heading">Expenses by category</h2>
+            <p class="hint">Share of spending for the selected month.</p>
+          </div>
+          <div id="category-chart" class="category-chart"></div>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="transactions-heading">
+        <div class="card-header">
+          <h2 id="transactions-heading">Transactions</h2>
+          <p class="hint" id="transactions-period-label"></p>
+        </div>
+        <div class="table-wrap">
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Type</th>
+                <th scope="col">Category</th>
+                <th scope="col">Description</th>
+                <th scope="col" class="num">Amount</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-body"></tbody>
+          </table>
+        </div>
+        <p class="empty-state" id="empty-state" hidden>
+          No transactions for this month. Add one using the form above.
+        </p>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>
+        Amounts are shown in US dollars. Demo figures are fictional. Your
+        entries stay in this browser’s localStorage and are not uploaded.
+      </p>
+    </footer>
+
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+      <form method="dialog">
+        <h2 id="confirm-title">Please confirm</h2>
+        <p id="confirm-text"></p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="confirm-cancel">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirm-accept">Confirm</button>
+        </div>
+      </form>
+    </dialog>
+
+    <noscript>
+      <p class="noscript">
+        SpendWise needs JavaScript to save budgets and transactions in this browser.
+      </p>
+    </noscript>
+
+    <script src="script.js"></script>
+  </body>
+</html>
